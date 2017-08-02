@@ -1,0 +1,489 @@
+#+theme=black
+
+#### SLIDE 1 #####
+################################################################################
+
+Build Your Own Go CI Server
+18:00 03 August 2017
+
+Marwan Sulaiman
+
+Developer at Work & Co
+
+# Hello everyone! My name is Marwan 
+
+#### SLIDE 2 #####
+################################################################################
+
+* Overview
+
+- What is CI/CD?
+
+- Why do you want it?
+
+- How do you do it?
+
+
+#### SLIDE 3 #####
+################################################################################
+
+* What is Continuous Integration?
+
+_[it]_ _is_ _the_ _practice_ _of_ _merging_ _all_ _developer_ _working_ _copies_ _to_ _a_ _shared_ _*mainline*_ _several_ _times_ _a_ _day_
+
+-Wikipedia
+
+
+
+# So let's look at a somewhat official definition that is technically probably more correct than my definition, but makes less sense to the audience.
+
+#### SLIDE 4 #####
+################################################################################
+
+* What is Continuous Integration?
+
+_it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _request_ _so_ _you_ _merge_ _with_ _more_ _confidence_
+
+-Me
+
+
+#### SLIDE 4 #####
+################################################################################
+
+* Set the Scene
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* Your new repo just got popular
+
+.image ./star.png 500 _
+
+#### SLIDE 5 #####
+################################################################################
+
+* You get a pull request
+
+.image ./pr.jpg 500 _
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* Deceptively friendly green button alert:
+
+.image ./merge.png 200 _
+
+#### SLIDE 5 #####
+################################################################################
+
+* Two things must happen before merge.
+
+1. You review the code (done by you).
+
+2. Check out the pull request commit, build/run the tests (done by someone/something else).
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* Like a good citizen, you review code.
+
+.image ./pr.png 500 _
+
+#### SLIDE 5 #####
+################################################################################
+
+* Someone/Something Else Running The Tests
+
+.image ./checks.png 500 _
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* The flow:
+
+.image ./graph.png 500 _
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* Why have a CI? 
+
+- Impractical to manually build/test every pull request.
+- Near-impossible to build/test in various environments (differnet Go versions, different OS's).
+- Catch bugs, errors, and regressions before merging to master.
+- Report useful information to the contributor (i.e. signing a CLA).
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* Why build your own CI? 
+
+- Customization
+- Granularity
+- Curiosity.
+
+#### SLIDE 5 #####
+################################################################################
+
+* How do I do it? 
+
+#### SLIDE 5 #####
+################################################################################
+
+* Webhooks
+
+.image ./webhook.png 500 _
+
+# add ngrok url.
+
+# open a pull request. 
+
+# watch it all happen.
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* ngrok
+
+    ./ngrok http 3000
+
+.image ./ngrok.png 450 _
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* CI Server
+
+    package main
+
+    import "net/http"
+
+    func main() {
+        http.HandleFunc("/webhook", webhookHandler)
+
+        http.ListenAndServe(":3000", nil)
+    }
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {...}
+
+# Who here has built a simple web server in Go? So you can see there's nothing special about it.
+
+#### SLIDE 5 #####
+################################################################################
+
+* webhookHandler
+
+    import "github.com/google/go-github/github"
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {
+        payload, err := github.ValidatePayload(r, []byte("supersecret"))
+        if err != nil {
+            fmt.Fprintln(w, err)
+            return
+        }
+
+        ...
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* webhookHandler() - cont'd
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {
+        ...
+
+        event, err := github.ParseWebHook(github.WebHookType(r), payload)
+        if err != nil {
+            fmt.Fprintln(w, err)
+            return
+        }
+
+        ...
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* webhookHandler() - cont'd
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {
+        ...
+
+        switch pre := event.(type) {
+        case *github.PullRequestEvent:
+            action := pre.GetAction()
+            if action == "opened" || action == "reopened" || action == "synchronize" {
+                err = buildPR(pre)
+                ...
+            }
+        default:
+            fmt.Fprintf(w, "Uninteresting event: %T\n", event)
+            return
+        }
+    }
+
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildPR()
+    func buildPR(pre *github.PullRequestEvent) {
+        status := "pending"
+        reportStatus(status, pre *github.PullRequestEvent)
+
+        ...
+    }
+
+.image ./pending.png 
+
+#### SLIDE 5 #####
+################################################################################
+
+* reportStatus()
+
+    import "golang.org/x/oauth2"
+
+    func reportStatus(status string, pre *github.PullRequestEvent) {
+        ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
+        tc := oauth2.NewClient(oauth2.NoContext, ts)
+        c := github.NewClient(tc)
+
+        owner := pre.PullRequest.Head.Repo.Owner.GetName()
+        repoName := pre.PullRequest.Head.Repo.GetName()
+        ref := pre.PullRequest.Head.GetSHA()
+
+        c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
+            State: &status,
+        })
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildPR() - clone the repository
+
+    func buildPR(pre *github.PullRequestEvent) error {
+        ...
+
+        pathToRepo, err := cloneRepo(pre)
+        if err != nil {
+            return err
+        }
+        defer os.RemoveAll(pathToRepo)
+
+        ...
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* cloneRepo() - create a temp directory
+
+    func cloneRepo(pre *github.PullRequestEvent) (string, error) {
+        ...
+
+        repoName := pre.PullRequest.Head.Repo.GetName()
+        tempDir, err := ioutil.TempDir("", repoName) // tempDir == "/var/jXei/T/repoName-fxjso"
+        if err != nil {
+            return "", err
+        }
+
+        ...
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* cloneRepo() - clone the repo
+
+    import "gopkg.in/src-d/go-git.v4"
+    import "gopkg.in/src-d/go-git.v4/plumbing"
+
+    func cloneRepo(pre *github.PullRequestEvent) (string, error) {
+        ...
+
+        cloneURL := pre.PullRequest.Head.Repo.GetCloneURL()
+        branchName := pre.PullRequest.Head.GetRef()
+
+        repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
+            URL:               gitURL,
+            Progress:          os.Stdout,
+            RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+            ReferenceName:     plumbing.ReferenceName(fmt.Sprintf("refs/heads/%v", branchName)),
+        })
+        if err != nil {
+            return "", err
+        }
+
+        ... 
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* cloneRepo() - checkout the pull-request commit
+
+    func cloneRepo(pre *github.PullRequestEvent) (string, error) {
+        ...
+
+        wt, err := repo.Worktree()
+        if err != nil {
+            return "", err
+        }
+
+        commitSha := pre.PullRequest.Head.GetSHA()
+        err = wt.Checkout(&git.CheckoutOptions{
+            Hash: plumbing.NewHash(commitSha),
+        })
+        if err != nil {
+            return "", err
+        }
+
+        return tempDir, nil
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildPR() - build the Dockerfile inside the repo.
+
+    func buildPR(pre *github.PullRequestEvent) error {
+        ...
+
+        err = buildImage(pathToRepo)
+
+        return err
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildImage() - create a docker client.
+
+    import docker "github.com/docker/docker/client"
+
+    func buildImage(repoDir string) error {
+        c, err := docker.NewEnvClient()
+        if err != nil {
+            return err
+        }
+
+        ...
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildImage() - tar up the whole repo.
+
+    import "github.com/docker/docker/pkg/archive"
+
+    func buildImage(repoDir string) error {
+        ...
+
+        buildCtx, err := archive.TarWithOptions(repoDir, &archive.TarOptions{
+            Compression: archive.Uncompressed,
+        })
+        if err != nil {
+            return errors.Wrap(err, "could not create build context")
+        }
+        defer buildCtx.Close()
+
+        ...
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildImage() - send the tar to the Docker daemon.
+
+    import "github.com/docker/docker/pkg/archive"
+
+    func buildImage(repoDir string) error {
+        ...
+
+        resp, err := c.ImageBuild(ctx, buildCtx, types.ImageBuildOptions{
+            Dockerfile: "./Dockerfile",
+            Tags:       []string{"built_by_my_ci"},
+        })
+        if err != nil {
+            return errors.Wrap(err, "could not send image build request")
+        }
+
+        ...
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* buildImage() - send the tar to the Docker daemon.
+
+    import "github.com/docker/docker/pkg/jsonmessage"
+    import "github.com/docker/docker/pkg/term"
+
+    func buildImage(repoDir string) error {
+        ...
+
+        fd, isTerm := term.GetFdInfo(os.Stdout)
+        err = jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, fd, isTerm, nil)
+
+        return err
+    }
+
+
+#### SLIDE 5 #####
+################################################################################
+
+* webhookHandler() - cont'd
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {
+        ...
+
+        switch pre := event.(type) {
+        case *github.PullRequestEvent:
+            action := pre.GetAction()
+            if action == "opened" || action == "reopened" || action == "synchronize" {
+                err = buildPR(pre)
+                status := "success"
+                if err != nil {
+                    status = "error"
+                }
+
+                reportStatus(status, pre *github.PullRequestEvent)
+            }
+        default:
+            fmt.Fprintf(w, "Uninteresting event: %T", event)
+            return
+        }
+    }
+
+#### SLIDE 5 #####
+################################################################################
+
+* RECAP
+
+- We get a webhook request.
+
+- We parse the payload to get all the info we need about the pull request.
+
+- We clone the repo to a temp directory
+
+- We cd into that repo && `docker build` it.
+
+- report back to github success/failure.
