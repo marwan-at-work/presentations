@@ -1,4 +1,4 @@
-package nows
+package crazystring
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ func TestNoWs(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			if result := NoWs(tc.input); result != tc.output {
-				t.Fatalf("expected %q but got %q", tc.output, result)
+				t.Fatalf("expected %q to turn into %q but got %q instead", tc.output, result)
 			}
 		})
 	}

@@ -1,4 +1,4 @@
-package nows
+package crazystring
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 
 // NoWs replaces every w into two v's
 func NoWs(s string) string {
-	return strings.Replace(s, "w", "vv", -1)
+	return strings.Replace(s, "w", "vv", 1)
 }
 
 // ReverseString reverse the characters of a given string
