@@ -197,6 +197,8 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     import "github.com/google/go-github/github"
 
     func webhookHandler(w http.ResponseWriter, r *http.Request) {
+
+        // func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err error)
         payload, err := github.ValidatePayload(r, []byte("supersecret"))
         if err != nil {
             fmt.Fprintln(w, err)
@@ -214,6 +216,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     func webhookHandler(w http.ResponseWriter, r *http.Request) {
         ...
 
+        // func ParseWebHook(messageType string, payload []byte) (interface{}, error)
         event, err := github.ParseWebHook(github.WebHookType(r), payload)
         if err != nil {
             fmt.Fprintln(w, err)
@@ -275,6 +278,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         repoName := pre.PullRequest.Head.Repo.GetName()
         ref := pre.PullRequest.Head.GetSHA()
 
+        // func (s *RepositoriesService) CreateStatus(ctx context.Context, owner, repo, ref string, status *RepoStatus) (*RepoStatus, *Response, error)
         c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
             State: &status,
         })
@@ -542,6 +546,72 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         })
     }
 
+
+#### SLIDE #####
+################################################################################
+
+* io.Writer 💝
+
+    repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
+        URL:               gitURL,
+        Progress:          os.Stdout, // io.Writer <----
+        RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+        ReferenceName:     plumbing.ReferenceName(fmt.Sprintf("refs/heads/%v", branchName)),
+    })
+
+    err = jsonmessage.DisplayJSONMessagesStream(
+        resp.Body,
+        os.Stdout, // io. Writer <----
+        fd,
+        isTerm,
+        nil,
+    )
+
+#### SLIDE #####
+################################################################################
+
+* io.Writer implemented
+
+    // Handles logs logic of a build process
+    type Logger struct {
+        ID  string
+        URL string
+    }
+
+    // implement the io.Writer
+    func (l *Logger) Write(p []byte) (int, error) {
+        persistToDB(l.ID, p)
+        
+        logToTerminal(l.ID, p)
+        
+        tweetIt(l.ID, p)
+
+        sendItToMyMom(l.ID, p)
+
+        return len(p), nil
+    }
+
+#### SLIDE #####
+################################################################################
+
+* io.Writer used
+
+    myLogger: &Logger{ID: id}
+
+    repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
+        URL:               gitURL,
+        Progress:          myLogger, // io.Writer <----
+        RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+        ReferenceName:     plumbing.ReferenceName(fmt.Sprintf("refs/heads/%v", branchName)),
+    })
+
+    err = jsonmessage.DisplayJSONMessagesStream(
+        resp.Body,
+        myLogger, // io. Writer <----
+        fd,
+        isTerm,
+        nil,
+    )
 
 #### SLIDE #####
 ################################################################################
