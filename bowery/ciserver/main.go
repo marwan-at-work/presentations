@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -28,7 +27,7 @@ func main() {
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/webhook", webhookHandler)
 
-	fmt.Println("👂", ":3000", "👂")
+	fmt.Println("👂", " on 3000")
 	http.ListenAndServe(":3000", nil)
 }
 
@@ -54,16 +53,14 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		action := pre.GetAction()
 		if action == "opened" || action == "reopened" || action == "synchronize" {
 			fmt.Println("building pr")
-			status := "pending"
-			reportStatus(status)
 			err = buildPR(pre)
 			fmt.Println("pr ", err)
-			status = "success"
+			status := "success"
 			if err != nil {
 				status = "error"
 			}
 
-			reportStatus(status)
+			reportStatus(status, pre)
 		}
 	default:
 		fmt.Fprintf(w, "Uninteresting event: %T", event)
@@ -76,43 +73,43 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func buildPR(pre *github.PullRequestEvent) error {
-	repoName := pre.PullRequest.Head.Repo.GetName()
-	tempDir, err := ioutil.TempDir("", repoName)
+	status := "pending"
+	reportStatus(status, pre)
+
+	pathToRepo, err := cloneRepo(pre)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(tempDir)
+	defer os.RemoveAll(pathToRepo)
 
-	err = cloneRepo(tempDir, pre)
-	if err != nil {
-		return err
-	}
-
-	err = buildImage(tempDir)
+	err = buildImage(pathToRepo)
 
 	return err
 }
 
-func cloneRepo(tempDir string, pre *github.PullRequestEvent) error {
+func cloneRepo(pre *github.PullRequestEvent) (string, error) {
+	repoName := pre.PullRequest.Head.Repo.GetName()
+	tempDir, err := ioutil.TempDir("", repoName)
+	if err != nil {
+		return "", err
+	}
+
 	cloneURL := pre.PullRequest.Head.Repo.GetCloneURL()
 	branchName := pre.PullRequest.Head.GetRef()
 
-	gitURL, _ := url.Parse(cloneURL)
-	gitURL.User = url.UserPassword(os.Getenv("GITHUB_TOKEN"), "x-oauth-basic")
-
 	repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
-		URL:               gitURL.String(),
+		URL:               cloneURL,
 		Progress:          os.Stdout,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		ReferenceName:     plumbing.ReferenceName(fmt.Sprintf("refs/heads/%v", branchName)),
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	wt, err := repo.Worktree()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	commitSha := pre.PullRequest.Head.GetSHA()
@@ -120,10 +117,10 @@ func cloneRepo(tempDir string, pre *github.PullRequestEvent) error {
 		Hash: plumbing.NewHash(commitSha),
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return tempDir, nil
 }
 
 func buildImage(repoDir string) error {
@@ -155,14 +152,16 @@ func buildImage(repoDir string) error {
 	return err
 }
 
-func reportStatus(status string) {
-	githubClient().Repositories.CreateStatus(context.Background(), "owner", "repo", "ref", &github.RepoStatus{
+func reportStatus(status string, pre *github.PullRequestEvent) {
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	c := github.NewClient(tc)
+
+	owner := pre.PullRequest.Head.Repo.Owner.GetName()
+	repoName := pre.PullRequest.Head.Repo.GetName()
+	ref := pre.PullRequest.Head.GetSHA()
+
+	c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
 		State: &status,
 	})
-}
-
-func githubClient() *github.Client {
-	var ts = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
-	var tc = oauth2.NewClient(oauth2.NoContext, ts)
-	return github.NewClient(tc)
 }

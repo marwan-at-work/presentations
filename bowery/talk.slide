@@ -237,7 +237,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 ################################################################################
 
 * buildPR()
-    func buildPR(pre *github.PullRequestEvent) {
+    func buildPR(pre *github.PullRequestEvent) error {
         status := "pending"
         reportStatus(status, pre *github.PullRequestEvent)
 

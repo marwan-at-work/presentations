@@ -14,8 +14,7 @@ func TestNoWs(t *testing.T) {
 		output string
 	}{
 		{"one w", "paw", "pavv"},
-		// {"two ws", "wow", "vvovv"},
-		// {"no w", "hi", "hi"},
+		{"no w", "hi", "hi"},
 	}
 
 	for _, tc := range testTable {
