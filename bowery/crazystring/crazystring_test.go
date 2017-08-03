@@ -25,27 +25,3 @@ func TestNoWs(t *testing.T) {
 		})
 	}
 }
-
-func TestReverseString(t *testing.T) {
-	t.Parallel()
-
-	testTable := []struct {
-		name   string
-		input  string
-		output string
-	}{
-		{"simple", "hi", "ih"},
-		{"empty", "", ""},
-		{"arabic", "مروان", "ناورم"},
-		{"japanese", "もしもし", "しもしも"},
-		{"emojis", "🔥🙏", "🙏🔥"},
-	}
-
-	for _, tc := range testTable {
-		t.Run(tc.name, func(t *testing.T) {
-			if result := ReverseString(tc.input); result != tc.output {
-				t.Fatalf("expected %q but got %q", tc.output, result)
-			}
-		})
-	}
-}

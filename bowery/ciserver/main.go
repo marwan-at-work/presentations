@@ -184,7 +184,6 @@ func reportStatus(status string, pre *github.PullRequestEvent, link string) {
 	repoName := pre.PullRequest.Head.Repo.GetName()
 	ref := pre.PullRequest.Head.GetSHA()
 
-	fmt.Println("gottee", link)
 	_, _, err := c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
 		State:     &status,
 		TargetURL: &link,
