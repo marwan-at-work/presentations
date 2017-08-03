@@ -161,7 +161,9 @@ func reportStatus(status string, pre *github.PullRequestEvent) {
 	repoName := pre.PullRequest.Head.Repo.GetName()
 	ref := pre.PullRequest.Head.GetSHA()
 
-	c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
+	ss, _, err := c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
 		State: &status,
 	})
+
+	fmt.Println(ss, "and", err)
 }
