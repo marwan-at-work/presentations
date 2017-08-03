@@ -1,6 +1,6 @@
 #+theme=black
 
-#### SLIDE 1 #####
+#### SLIDE #####
 ################################################################################
 
 Build Your Own Go CI Server
@@ -12,7 +12,7 @@ Developer at Work & Co
 
 # Hello everyone! My name is Marwan 
 
-#### SLIDE 2 #####
+#### SLIDE #####
 ################################################################################
 
 * Overview
@@ -24,7 +24,7 @@ Developer at Work & Co
 - How do you do it?
 
 
-#### SLIDE 3 #####
+#### SLIDE #####
 ################################################################################
 
 * What is Continuous Integration?
@@ -37,7 +37,7 @@ _[it]_ _is_ _the_ _practice_ _of_ _merging_ _all_ _developer_ _working_ _copies_
 
 # So let's look at a somewhat official definition that is technically probably more correct than my definition, but makes less sense to the audience.
 
-#### SLIDE 4 #####
+#### SLIDE #####
 ################################################################################
 
 * What is Continuous Integration?
@@ -47,20 +47,20 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 -Me
 
 
-#### SLIDE 4 #####
+#### SLIDE #####
 ################################################################################
 
 * Set the Scene
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Your new repo just got popular
 
 .image ./star.png 500 _
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * You get a pull request
@@ -68,14 +68,14 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 .image ./pr.jpg 500 _
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Deceptively friendly green button alert:
 
 .image ./merge.png 200 _
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Two things must happen before merge.
@@ -85,14 +85,14 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 2. Check out the pull request commit, build/run the tests (done by someone/something else).
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Like a good citizen, you review code.
 
 .image ./pr.png 500 _
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Someone/Something Else Running The Tests
@@ -100,7 +100,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 .image ./checks.png 500 _
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * The flow:
@@ -108,7 +108,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 .image ./graph.png 500 _
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Why have a CI? 
@@ -119,7 +119,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 - Report useful information to the contributor (i.e. signing a CLA).
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Why build your own CI? 
@@ -128,12 +128,12 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 - Granularity
 - Curiosity.
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * How do I do it? 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * Webhooks
@@ -147,7 +147,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 # watch it all happen.
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * ngrok
@@ -157,7 +157,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 .image ./ngrok.png 450 _
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * CI Server
@@ -176,7 +176,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 
 # Who here has built a simple web server in Go? So you can see there's nothing special about it.
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * webhookHandler
@@ -193,7 +193,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         ...
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * webhookHandler() - cont'd
@@ -210,7 +210,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         ...
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * webhookHandler() - cont'd
@@ -233,7 +233,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildPR()
@@ -246,7 +246,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 
 .image ./pending.png 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * reportStatus()
@@ -258,7 +258,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         tc := oauth2.NewClient(oauth2.NoContext, ts)
         c := github.NewClient(tc)
 
-        owner := pre.PullRequest.Head.Repo.Owner.GetName()
+        owner := pre.PullRequest.Head.Repo.Owner.GetLogin()
         repoName := pre.PullRequest.Head.Repo.GetName()
         ref := pre.PullRequest.Head.GetSHA()
 
@@ -267,7 +267,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         })
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildPR() - clone the repository
@@ -285,7 +285,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * cloneRepo() - create a temp directory
@@ -303,7 +303,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * cloneRepo() - clone the repo
@@ -330,7 +330,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         ... 
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * cloneRepo() - checkout the pull-request commit
@@ -355,7 +355,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildPR() - build the Dockerfile inside the repo.
@@ -369,7 +369,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildImage() - create a docker client.
@@ -385,7 +385,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         ...
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildImage() - tar up the whole repo.
@@ -407,7 +407,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildImage() - send the tar to the Docker daemon.
@@ -429,7 +429,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * buildImage() - send the tar to the Docker daemon.
@@ -447,7 +447,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
     }
 
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * webhookHandler() - cont'd
@@ -473,7 +473,7 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
         }
     }
 
-#### SLIDE 5 #####
+#### SLIDE #####
 ################################################################################
 
 * RECAP
@@ -487,3 +487,19 @@ _it_ _is_ _automated_ _building/testing_ _of_ _your_ _repository's_ _pull_ _requ
 - We cd into that repo && `docker build` it.
 
 - report back to github success/failure.
+
+
+#### SLIDE #####
+################################################################################
+
+* Demo 🤞
+
+#### SLIDE #####
+################################################################################
+
+* One Last, Important, Missing Piece
+
+#### SLIDE #####
+################################################################################
+
+* Persisting Logs

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -23,9 +24,25 @@ import (
 	"github.com/google/go-github/github"
 )
 
+var logs = map[string][]string{}
+
+type logger struct {
+	id  string
+	url string
+}
+
+func (l *logger) Write(p []byte) (int, error) {
+	logs[l.id] = append(logs[l.id], string(p))
+
+	fmt.Printf("%s\n", p)
+
+	return len(p), nil
+}
+
 func main() {
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/webhook", webhookHandler)
+	http.HandleFunc("/logs", logHandler)
 
 	fmt.Println("👂", " on 3000")
 	http.ListenAndServe(":3000", nil)
@@ -52,42 +69,44 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	case *github.PullRequestEvent:
 		action := pre.GetAction()
 		if action == "opened" || action == "reopened" || action == "synchronize" {
+			id := pre.PullRequest.Head.GetSHA()
+			link := os.Getenv("NGROK_URL")
+			if link == "" {
+				link = "https://50a593ad.ngrok.io"
+			}
+
+			url := fmt.Sprintf("%s/logs?id=%s", link, id)
+			l := &logger{id, url}
 			fmt.Println("building pr")
-			err = buildPR(pre)
-			fmt.Println("pr ", err)
+			err = buildPR(pre, l)
 			status := "success"
 			if err != nil {
 				status = "error"
 			}
 
-			reportStatus(status, pre)
+			reportStatus(status, pre, url)
 		}
 	default:
 		fmt.Fprintf(w, "Uninteresting event: %T", event)
-		return
-	}
-
-	for key, vals := range r.Header {
-		fmt.Printf("key: %v - vals: %v\n", key, vals)
 	}
 }
 
-func buildPR(pre *github.PullRequestEvent) error {
+func buildPR(pre *github.PullRequestEvent, l *logger) error {
 	status := "pending"
-	reportStatus(status, pre)
+	reportStatus(status, pre, l.url)
 
-	pathToRepo, err := cloneRepo(pre)
+	pathToRepo, err := cloneRepo(pre, l)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(pathToRepo)
 
-	err = buildImage(pathToRepo)
+	err = buildImage(pathToRepo, l)
 
 	return err
 }
 
-func cloneRepo(pre *github.PullRequestEvent) (string, error) {
+func cloneRepo(pre *github.PullRequestEvent, l *logger) (string, error) {
 	repoName := pre.PullRequest.Head.Repo.GetName()
 	tempDir, err := ioutil.TempDir("", repoName)
 	if err != nil {
@@ -99,7 +118,7 @@ func cloneRepo(pre *github.PullRequestEvent) (string, error) {
 
 	repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
 		URL:               cloneURL,
-		Progress:          os.Stdout,
+		Progress:          l,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		ReferenceName:     plumbing.ReferenceName(fmt.Sprintf("refs/heads/%v", branchName)),
 	})
@@ -123,7 +142,7 @@ func cloneRepo(pre *github.PullRequestEvent) (string, error) {
 	return tempDir, nil
 }
 
-func buildImage(repoDir string) error {
+func buildImage(repoDir string, l *logger) error {
 	c, err := docker.NewEnvClient()
 	if err != nil {
 		return err
@@ -146,24 +165,58 @@ func buildImage(repoDir string) error {
 		return errors.Wrap(err, "could not send image build request")
 	}
 
-	fd, isTerm := term.GetFdInfo(os.Stdout)
-	err = jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, fd, isTerm, nil)
+	fd, isTerm := term.GetFdInfo(l)
+	err = jsonmessage.DisplayJSONMessagesStream(resp.Body, l, fd, isTerm, nil)
 
 	return err
 }
 
-func reportStatus(status string, pre *github.PullRequestEvent) {
+func reportStatus(status string, pre *github.PullRequestEvent, link string) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	c := github.NewClient(tc)
 
 	owner := pre.PullRequest.Head.Repo.Owner.GetName()
+	if owner == "" {
+		owner = pre.PullRequest.Head.Repo.Owner.GetLogin()
+	}
+
 	repoName := pre.PullRequest.Head.Repo.GetName()
 	ref := pre.PullRequest.Head.GetSHA()
 
-	ss, _, err := c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
-		State: &status,
+	fmt.Println("gottee", link)
+	_, _, err := c.Repositories.CreateStatus(context.Background(), owner, repoName, ref, &github.RepoStatus{
+		State:     &status,
+		TargetURL: &link,
 	})
 
-	fmt.Println(ss, "and", err)
+	if err != nil {
+		fmt.Println("could not report status to github", err)
+	}
+}
+
+func logHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	logLines, ok := logs[id]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "id not found in memory")
+		return
+	}
+
+	// TODO: can parse once outside.
+	t := template.New("logs")
+	t = template.Must(t.ParseFiles("./logs.html"))
+
+	dt := &dataTemplate{logLines}
+
+	err := t.Lookup("logs.html").Execute(w, dt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+	}
+}
+
+type dataTemplate struct {
+	Logs []string
 }
