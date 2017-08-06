@@ -5,4 +5,6 @@ RUN mkdir -p /go/src/github.com/marwan-at-work/presentations && \
 
 COPY . /go/src/github.com/marwan-at-work/presentations
 
+WORKDIR /go/src/github.com/marwan-at-work/presentations
+
 CMD ["present-plus", "-orighost", "localhost"]
