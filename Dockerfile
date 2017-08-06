@@ -7,4 +7,4 @@ COPY . /go/src/github.com/marwan-at-work/presentations
 
 WORKDIR /go/src/github.com/marwan-at-work/presentations
 
-CMD ["present-plus", "-orighost", "localhost"]
+CMD ["present-plus", "-http", "0.0.0.0:4999", "-play=false"]
