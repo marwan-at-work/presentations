@@ -158,7 +158,7 @@ func buildImage(repoDir string, l *logger) error {
 
 	ctx := context.Background()
 	resp, err := c.ImageBuild(ctx, buildCtx, types.ImageBuildOptions{
-		Dockerfile: "./Dockerfile",
+		Dockerfile: "./bowery/crazystring/Dockerfile",
 		Tags:       []string{"built_by_ci"},
 	})
 	if err != nil {
