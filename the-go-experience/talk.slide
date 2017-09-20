@@ -1,0 +1,211 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+The Go Experience
+10:00 16 August 2017
+
+Marwan Sulaiman - github.com/marwan-at-work
+
+Work & Co
+
+# Hello everyone! My name is Marwan 
+
+#### SLIDE #####
+################################################################################
+
+* Session Goals:
+
+- Get you excited about Go.
+
+- Set the expectations.
+
+- Hello World 
+
+- Give you resources.
+
+# So today I'm going to walk you through the experience of learning Go. 
+
+#### SLIDE #####
+################################################################################
+
+* What is Go? 
+
+- concurrent, compiled, statically typed programming language.
+
+.image ./gopher.jpg 250 _
+
+#### SLIDE #####
+################################################################################
+
+* Who created Go? 
+
+- Rob Pike
+- Ken Thompson
+- Robert Griesemer
+
+
+#### SLIDE #####
+################################################################################
+
+* What makes them so qualified?
+
+- Unix
+- UTF-8
+- Plan 9
+- B (C predecessor)
+- JVM 
+- JavaScript V8 engine.
+
+#### SLIDE #####
+################################################################################
+
+* Why was it created? 
+
+#### SLIDE #####
+################################################################################
+
+* Compiled Vs Interpreted
+
+- Interpreted languages were too slow at run time.
+- Compiled languages were too slow at build time. 
+
+#### SLIDE #####
+################################################################################
+
+* Dynamic Vs Typed
+
+- Dynamic languages are hard to read.
+*function* *doIt(x)* *{* *doItNow(x)* *}*
+
+- Statically Typed languages were too much to read.
+*foo::Foo* ***myFoo* *=* *new* *foo::Foo(foo::FOO_INIT)*
+
+#### SLIDE #####
+################################################################################
+
+* Other reasons
+
+- Current main stream languages too old to support modern hardware.
+- Languages have become too complex.
+
+#### SLIDE #####
+################################################################################
+
+* So does this Gopher solve all of these problems?
+
+#### SLIDE #####
+################################################################################
+
+* Cool Features
+
+- Compiles (and cross compiles) to machine code. Really, really, fast.
+# All your code and dependencies in a single binary. 
+# Show a Node.js source code and production build. Then compare with Go (same source code, build is one file tho)
+# From your mac, you can create mac binaries, linux binaries, and windows binaries. 
+
+- One amazing concurrent model (vs 5 weird concurrent models: promises, callbacks, generators, async/await, setTimeout)
+
+- Supports mutli-core processors
+
+- Awesome standard library. HTTP/2 by default since February 2016.
+- Incredible tooling (static analsis && dynamic analysis)
+# Benchmarks, unit tests, editor support, profiling and tracing.
+# Show gofmt, godoc, benchmark, code coverage.
+
+- Fun and composable type-system.
+
+- Written to be read.
+
+* Setting the expectations.
+
+
+#### SLIDE #####
+################################################################################
+
+* How will your experience go?
+
+
+#### SLIDE #####
+################################################################################
+
+* Phase One
+
+- You will learn the syntax.
+
+- You will write code. 
+
+- Your code will suck.
+
+#### SLIDE #####
+################################################################################
+
+* Drop the baggage.
+
+#### SLIDE #####
+################################################################################
+
+
+* Phase Two
+
+- You will learn the language.
+
+- You will write code. 
+
+- Your code will not suck.
+
+#### SLIDE #####
+################################################################################
+
+* Things that might surprise you. 
+
+- No map, filter, reduce.
+
+- In fact, no array methods.
+
+- All you get is a *for* loop.
+
+- No generics (if you don't know what that means, that's better). 
+
+- No magical dynamic typing
+
+#### SLIDE #####
+################################################################################
+
+* Hello World
+
+.play ./hello.go
+
+#### SLIDE #####
+################################################################################
+
+* Let's Make A Sandwich
+
+.play ./sandwich/sandwich.go /START OMIT/,/END OMIT/
+
+#### SLIDE #####
+################################################################################
+
+* Let's Make A Better Sandwich
+
+.play -numbers ./quick-sandwich/sandwich.go /START OMIT/,/END OMIT/
+
+#### SLIDE #####
+################################################################################
+
+* Resources:
+
+- Go By Example: syntax. (https://gobyexample.com)
+
+- Tour of Go: more idiomatic. (https://tour.golang.org/welcome/1)
+
+- GOLANGBOT: more idiomatic. (https://golangbot.com)
+
+- Plural Sight - for those who prefer video.
+
+- Gopher Slack Channel: best resource for asking questions. (https://gophers.slack.com/)
+
+- #tech-golang: work&co slack channel.
+
+- Me! 
