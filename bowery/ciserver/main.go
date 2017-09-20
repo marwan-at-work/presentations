@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 
@@ -32,7 +33,8 @@ type logger struct {
 }
 
 func (l *logger) Write(p []byte) (int, error) {
-	logs[l.id] = append(logs[l.id], string(p))
+	lgs := strings.Split(string(p), "\n")
+	logs[l.id] = append(logs[l.id], lgs...)
 
 	fmt.Printf("%s\n", p)
 
