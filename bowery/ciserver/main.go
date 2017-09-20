@@ -72,7 +72,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 			id := pre.PullRequest.Head.GetSHA()
 			link := os.Getenv("NGROK_URL")
 			if link == "" {
-				link = "https://50a593ad.ngrok.io"
+				link = "https://22004c77.ngrok.io"
 			}
 
 			url := fmt.Sprintf("%s/logs?id=%s", link, id)
