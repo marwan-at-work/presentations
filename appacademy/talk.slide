@@ -1,0 +1,157 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+The Go Programming Language
+11:00 03 March 2018
+
+Marwan Sulaiman
+The New York Times
+
+# Hello everyone! My name is Marwan 
+
+#### SLIDE #####
+################################################################################
+
+* About me.
+
+- The New York Times (2018)
+- Work & Co (2016-2017)
+- App Academy (July '15 cohort)
+
+_GitHub:_ _marwan-at-work_
+
+_LinkedIn:_ _/in/marwan91_
+
+
+#### SLIDE #####
+################################################################################
+
+* What is Go?
+
+- A programming language.
+- Concurrent
+- Compiled
+- Statically typed
+
+.image ./gopher.jpg 250 _
+
+
+#### SLIDE #####
+################################################################################
+
+* Who is using Go? 
+
+#### SLIDE #####
+################################################################################
+
+* Adoption
+
+.image ./adoption-global.png 500 _
+
+* Adoption
+
+.image ./adoption-gaming.png 500 _
+
+* Adoption
+
+.image ./adoption-banking.png 500 _
+
+* Adoption
+
+.image ./adoption-cloud.png 500 _
+
+* Adoption
+
+.image ./adoption-tech.png 500 _
+
+* Adoption
+
+.image ./adoption-general.png 500 _
+
+
+#### SLIDE #####
+################################################################################
+
+* Let's look at some code.
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+
+.code ./static/static.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+.code ./static/static2.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+.code ./static/static3.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static.go /START OMIT/,/END OMIT/
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static2.go /START OMIT/,/END OMIT/
+
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static3.go /START OMIT/,/END OMIT/
+
+
+#### SLIDE #####
+################################################################################
+
+* Concurrency
+
+
+#### SLIDE #####
+################################################################################
+
+* Let's make a sandwich. 
+
+Given: 
+
+- Two butlers 
+- Two shops in opposite directions. 
+- One shop has peanut butter. 
+- The other has jelly. 
+- Each trip to either store takes 1 whole second.
+
+Task:
+
+- Use the two butlers to bring you pb & j so you can make a sandwich.
