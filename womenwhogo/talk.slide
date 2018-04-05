@@ -1,0 +1,148 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+The Go Programming Language
+
+18:30 16 April 2018
+
+Marwan Sulaiman
+
+
+#### SLIDE #####
+################################################################################
+
+* About me.
+
+- App Academy ('15): Ruby, Rails, SQL, React/JavaScript.
+- Work & Co ('16 - '17): React, Redux, Clojure, React-Native
+- The New York Times ('18 - present): Go 💖
+
+_GitHub:_ _marwan-at-work_
+_LinkedIn:_ _/in/marwan91_
+_Twitter:_ _@MarwanSulaiman_
+
+
+#### SLIDE #####
+################################################################################
+
+* What is Go?
+
+- A programming language.
+- Concurrent
+- Compiled
+- Statically typed
+
+.image ./gopher.jpg 250 _
+
+#### SLIDE #####
+################################################################################
+
+* Let's get set up!
+
+- https://golang.org/dl (download Go)
+- mkdir ~/go/src ~/go/bin ~/go/pkg
+- Open or create ~/.bash_profile and add the following two lines: 
+    export GOPATH="$HOME/go"
+    export PATH="$PATH:$GOPATH/bin"
+- Install the Go plugin for your editor. 
+- Let's write hello world!
+
+#### SLIDE #####
+################################################################################
+
+* Let's look at some code.
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+
+.code ./static/static.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+.code ./static/static2.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+What does this function do?
+
+.code ./static/static3.js
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static.go /START OMIT/,/END OMIT/
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static2.go /START OMIT/,/END OMIT/
+
+
+#### SLIDE #####
+################################################################################
+
+* Type Safety.
+
+Same thing in Go:
+
+.code  ./static/static3.go /START OMIT/,/END OMIT/
+
+
+#### SLIDE #####
+################################################################################
+
+* Concurrency
+
+
+#### SLIDE #####
+################################################################################
+
+* Let's make a sandwich. 
+
+Given: 
+
+- Two butlers 
+- Two shops in opposite directions. 
+- One shop has peanut butter. 
+- The other has jelly. 
+- Each trip to either store takes 1 whole second.
+
+Task:
+
+- Use the two butlers to bring you pb & j so you can make a sandwich.
+
+#### SLIDE #####
+################################################################################
+
+* Resources
+
+- https://golang.org
+
+- https://gobyexample.com
+
+- Gopher slack channel
+
+- https://golangbot.com
