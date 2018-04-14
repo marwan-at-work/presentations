@@ -9,6 +9,19 @@ The Go Programming Language
 
 Marwan Sulaiman
 
+#### SLIDE #####
+################################################################################
+
+* Let's get set up!
+
+- https://golang.org/dl (download Go)
+- mkdir ~/go/src ~/go/bin ~/go/pkg
+- Open or create ~/.bash_profile and add the following two lines: 
+    export GOPATH="$HOME/go"
+    export PATH="$PATH:$GOPATH/bin"
+- Install the Go plugin for your editor. 
+- Let's write hello world!
+
 
 #### SLIDE #####
 ################################################################################
@@ -23,6 +36,12 @@ _GitHub:_ _marwan-at-work_
 _LinkedIn:_ _/in/marwan91_
 _Twitter:_ _@MarwanSulaiman_
 
+#### SLIDE #####
+################################################################################
+
+* Disclamer.
+
+- I can't teach you a programming language in 2 hours.
 
 #### SLIDE #####
 ################################################################################
@@ -36,18 +55,6 @@ _Twitter:_ _@MarwanSulaiman_
 
 .image ./gopher.jpg 250 _
 
-#### SLIDE #####
-################################################################################
-
-* Let's get set up!
-
-- https://golang.org/dl (download Go)
-- mkdir ~/go/src ~/go/bin ~/go/pkg
-- Open or create ~/.bash_profile and add the following two lines: 
-    export GOPATH="$HOME/go"
-    export PATH="$PATH:$GOPATH/bin"
-- Install the Go plugin for your editor. 
-- Let's write hello world!
 
 #### SLIDE #####
 ################################################################################
