@@ -1,0 +1,161 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+The Go Download Protocol
+
+23 August 2018
+
+Marwan Sulaiman (github.com/marwan-at-work)
+The New York Times
+
+#### SLIDE #####
+################################################################################
+
+* Go 1.11 introduces native dependency managmenet
+
+- Yay.
+
+#### SLIDE #####
+################################################################################
+
+* TL;DR
+
+- No external tool to manage dependencies
+- Node.js has NPM
+- Ruby has Bundler
+- Rust has Cargo
+- Go has...Go
+
+#### SLIDE #####
+################################################################################
+
+* There are already many talks about this, short and long:
+
+.link https://research.swtch.com/vgo - Original Proposal (https://research.swtch.com/vgo)
+.link https://www.youtube.com/watch?v=6MbIzJmLz6Q - Paul Jolly - What are Go modules and how do I use them?
+.link https://talks.godoc.org/github.com/rogpeppe/talks/modules.talk/modules.slide - Roger Peppe - Go modules 
+.link https://roberto.selbach.ca/intro-to-go-modules - Roberto Selbach - Introduction to Go Modules
+.link https://www.youtube.com/watch?v=F8nrpe0XWRg - Russ Cox - Go With Versions
+
+#### SLIDE #####
+################################################################################
+
+* Today, I'll focus on one part of the proposal: 
+
+- The Download Protocol
+
+
+#### SLIDE #####
+################################################################################
+
+* TL;DR
+
+- Go Get, Dep, and all previous Go dependency managers used VCS.
+- Go Modules uses VCS by default,
+- But it can now use an HTTP protocol when GOPROXY is set to a URL. 
+
+#### SLIDE #####
+################################################################################
+
+* Why is that good? 
+
+- Logic
+- Access Control 
+- Immutability 
+- Performance
+
+_It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_GitHub_but_almost_four_minutes_to_git_clone_it_ -- [Vgo Proposal]
+
+
+#### SLIDE #####
+################################################################################
+
+* The contract
+
+- GET _baseURL/{module}/@v/list_ 
+
+- GET _baseURL/{module}/@v/{version}.info_ 
+
+- GET _baseURL/{module}/@v/{version}.mod_ 
+
+- GET _baseURL/{module}/@v/{version}.zip_ 
+
+- GET _baseURL/{module}/@latest_ 
+
+
+#### SLIDE #####
+################################################################################
+
+* How does it do it? 
+
+.code ./ex1/main.go
+
+
+#### SLIDE #####
+################################################################################
+
+* Before 1.11
+
+- Your program is built with the following dependency:
+    package github.com/pkg/errors
+    branch: master
+    commit: 816c9085562cd7ee03e7f8188a1cfd942858cded
+
+#### SLIDE #####
+################################################################################
+
+* After 1.11 (with modules enabled)
+
+- Your program is built with the following dependency:
+    package github.com/pkg/errors
+    tag: v0.8.0
+
+
+#### SLIDE #####
+################################################################################
+
+* How? 
+
+- 1. Go looks at all the tags of that VCS repo. 
+
+    GET /github.com/pkg/errors/@v/list
+    v0.8.0
+    v0.7.1
+    v0.7.0
+    v0.6.0
+    v0.5.1
+    v0.5.0
+    v0.4.0
+    v0.3.0
+    v0.2.0
+    v0.1.0
+
+#### SLIDE #####
+################################################################################
+
+* How? 
+
+- 2. Go would like to know more about v0.8.0
+    GET /github.com/pkg/errors/@v/v0.8.0.info
+    {
+        "Version":"v0.8.0",
+        "Time":"2016-09-29T01:48:01Z"
+    }
+
+#### SLIDE #####
+################################################################################
+
+* How? 
+
+- 3. Go builds your program with v0.8.0
+    GET /github.com/pkg/errors/@v/v0.8.0.zip
+    <github.com/pkg/errors code base wrapped in a zip file>
+
+#### SLIDE #####
+################################################################################
+
+* What about non semver repos? 
+
+.code ./ex2/main.go
