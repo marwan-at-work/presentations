@@ -283,24 +283,15 @@ Returns
 - The simplicity of only pushing to Code Hosting Sites (github, bitbucket etc)
 - The assurances and benefits of a proxy server (immutability, access, etc)
 
-#### SLIDE #####
-################################################################################
-
-* How does it work? 
-
-
-.image ./athens-diagram.png 500 _
-
 
 #### SLIDE #####
 ################################################################################
 
 * Terminology
 
-- Private Proxy: Proxy
+- Private Proxy: proxy
 - Public Proxy: Olympus
 - Public/Private Storage: storage.Backend
-
 
 
 #### SLIDE #####
@@ -314,6 +305,24 @@ Returns
 - MongoDB 
 - Minio
 - FS/mem
+
+#### SLIDE #####
+################################################################################
+
+* How does it work? 
+
+.image ./athens-diagram.png 500 _
+
+#### SLIDE #####
+################################################################################
+
+* Notable differencies
+
+- Olympus will only accept semver
+- The proxy will accept pseudo versions.
+- Olympus is for public modules only. 
+- The proxy can authenticate with a VCS for private repos.
+
 
 
 #### SLIDE #####
