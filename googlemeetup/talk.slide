@@ -98,6 +98,9 @@ _It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_
 
 * Before 1.11
 
+    $ go get
+    $ go build
+
 - Your program is built with the following dependency:
     package github.com/pkg/errors
     branch: master
@@ -107,6 +110,9 @@ _It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_
 ################################################################################
 
 * After 1.11 (with modules enabled)
+
+    $ go mod init myprogram
+    $ GO111MODULE=on GOPROXY=http://myproxyserver.com go build
 
 - Your program is built with the following dependency:
     package github.com/pkg/errors
@@ -118,9 +124,14 @@ _It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_
 
 * How? 
 
-- 1. Go looks at all the tags of that VCS repo. 
+- 1. Go would like to see all the tags associated with pkg/errors.
 
-    GET /github.com/pkg/errors/@v/list
+    GET baseURL/{module}/@v/list
+    Becomes
+    GET baseURL/github.com/pkg/errors/@v/list
+
+Returns 
+
     v0.8.0
     v0.7.1
     v0.7.0
@@ -138,7 +149,12 @@ _It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_
 * How? 
 
 - 2. Go would like to know more about v0.8.0
-    GET /github.com/pkg/errors/@v/v0.8.0.info
+    GET baseURL/{module}/@v/{version}.info 
+    Becomes
+    GET baseURL/github.com/pkg/errors/@v/v0.8.0.info
+
+Returns
+
     {
         "Version":"v0.8.0",
         "Time":"2016-09-29T01:48:01Z"
@@ -147,15 +163,170 @@ _It_takes_10_seconds_to_download_the_CockroachDB_source_tree_as_a_zip_file_from_
 #### SLIDE #####
 ################################################################################
 
-* How? 
+* How?
 
-- 3. Go builds your program with v0.8.0
-    GET /github.com/pkg/errors/@v/v0.8.0.zip
+- 3. Go would like the source code for v0.8.0
+
+    GET baseURL/{module}/@v/{version}.zip
+    Becomes
+    GET baseURL/github.com/pkg/errors/@v/v0.8.0.zip
+
+Returns
+
     <github.com/pkg/errors code base wrapped in a zip file>
+
+- All paths begin with the module path and version
+    github.com/pkg/errors@v0.8.0/LICENSE
+    github.com/pkg/errors@v0.8.0/README.md
+    github.com/pkg/errors@v0.8.0/errors.go
+    ...
+
+#### SLIDE #####
+################################################################################
+
+* How?
+
+- 4. Go asks for the dependencies of your dependencies
+
+    GET baseURL/{module}/@v/{version}.mod
+    Becomes
+    GET baseUR/github.com/pkg/errors/@v/v0.8.0.mod
+
+- Server returns go.mod file 
+
+    module github.com/pkg/errors
+
+    require (
+        github.com/sirupsen/logrus v1.0.6
+    )
+
+.caption * _sirupsen/logrus_is_not_a_real_dependency_of_pkg/errors_
 
 #### SLIDE #####
 ################################################################################
 
 * What about non semver repos? 
 
+- A lot of Go libraries have no tags
+- Or tagged but not with semantic versioning. 
+
 .code ./ex2/main.go
+
+#### SLIDE #####
+################################################################################
+
+* Similar process, different results.
+
+- 1. GET /github.com/marwan-at-work/gdp/@v/list
+
+    ...
+
+- 2. GET /github.com/marwan-at-work/gdp/@latest
+
+    {
+        "Version": "v0.0.0-20180802153652-841e60f0c1ca",
+        "Time": "2018-08-02T15:36:52Z"
+    }
+
+#### SLIDE #####
+################################################################################
+
+* Pseudo Versions
+
+- v0.0.0-20180802153652-841e60f0c1ca
+- Has three parts split by the `-` character.
+- 1. v0.0.0-
+- 2. Timestamp.
+- 3. Commit hash.
+
+#### SLIDE #####
+################################################################################
+
+* The rest is business as usual:
+
+- GET /github.com/marwan-at-work/gdp/@v/v0.0.0-20180802153652-841e60f0c1ca.info
+- GET /github.com/marwan-at-work/gdp/@v/v0.0.0-20180802153652-841e60f0c1ca.mod
+- GET /github.com/marwan-at-work/gdp/@v/v0.0.0-20180802153652-841e60f0c1ca.zip
+
+
+#### SLIDE #####
+################################################################################
+
+* Should you care?
+
+
+#### SLIDE #####
+################################################################################
+
+* A Global Proxy
+
+.image ./athens.png 500 _
+
+
+#### SLIDE #####
+################################################################################
+
+* What is Athens? 
+
+- A Download Protocol Implementation
+- A Global Proxy / A Module CDN
+- A Private Proxy
+- Open Source!
+- Not For Profit
+
+#### SLIDE #####
+################################################################################
+
+* What is Athens? 
+
+- The best of both worlds:
+- The simplicity of only pushing to Code Hosting Sites (github, bitbucket etc)
+- The assurances and benefits of a proxy server (immutability, access, etc)
+
+#### SLIDE #####
+################################################################################
+
+* How does it work? 
+
+
+.image ./athens-diagram.png 500 _
+
+
+#### SLIDE #####
+################################################################################
+
+* Terminology
+
+- Private Proxy: Proxy
+- Public Proxy: Olympus
+- Public/Private Storage: storage.Backend
+
+
+
+#### SLIDE #####
+################################################################################
+
+* Storage Implementations
+
+- GCP Cloud Storage
+- Azure Blob Storage
+- AWS S3 
+- MongoDB 
+- Minio
+- FS/mem
+
+
+#### SLIDE #####
+################################################################################
+
+* Demo
+
+
+#### SLIDE #####
+################################################################################
+
+* Links
+
+- http://docs.gomods.io/
+- https://medium.com/@arschles
+- https://talks.bjk.fyi/golanguk18.html
