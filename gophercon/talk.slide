@@ -1,0 +1,194 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+Migrating The Go Community
+
+27 August 2018
+
+Marwan Sulaiman (github.com/marwan-at-work)
+The New York Times
+
+#### SLIDE #####
+################################################################################
+
+* Let's Talk About Go Modules
+
+- And in particular: Semantic Import Versioning
+
+#### SLIDE #####
+################################################################################
+
+* Semantic Import Versioning
+
+.image ./siv.png 500 _
+
+
+#### SLIDE #####
+################################################################################
+
+* A concern:
+
+.image ./issue.png 350 _
+
+#### SLIDE #####
+################################################################################
+
+* A solution!
+
+.image ./solution.png 350 _
+
+
+#### SLIDE #####
+################################################################################
+
+* The Good News
+
+- Go1 Compatibility Promise Is Preserved.
+
+#### SLIDE #####
+################################################################################
+
+* The Bad News 
+
+- We all still have to migrate.
+
+#### SLIDE #####
+################################################################################
+
+* A demonstration: 
+
+    # mycliapp/main.go
+    package main
+
+    import "mycliapp/cmd"
+
+    func main() {
+        cmd.Run(os.Args)
+    }
+
+
+#### SLIDE #####
+################################################################################
+
+* A demonstration: 
+
+    # mycliapp/cmd/cmd.go
+    package cmd
+
+    import "github.com/dgrijalva/jwt-go"
+
+    func Run(args []string) {
+        ...
+    }
+
+#### SLIDE #####
+################################################################################
+
+* A demonstration:
+
+    # mycliapp/go.mod 
+    module mycliapp
+    
+    require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
+
+#### SLIDE #####
+################################################################################
+
+* A breaking change:
+
+    # mycliapp/go.mod 
+    module mycliapp/v2
+
+    require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
+    -------------------
+    # mycliapp/main.go
+    package main
+
+    import "mycliapp/v2/cmd"
+
+    func main() {
+        cmd.Run(os.Args, []string{"default", "vars"})
+    }
+    ---------------------
+    # mycliapp/cmd/cmd.go
+    package cmd
+
+    func Run(args []string, defaults []string) {
+        ...
+    }
+
+#### SLIDE #####
+################################################################################
+
+* Easy enough.
+
+- What happens when you have 10s of sub-packages?
+- And each sub-package has 10s of import paths?
+
+#### SLIDE #####
+################################################################################
+
+* So I wrote a tool
+
+- github.com/marwan-at-work/mod
+
+    go get github.com/marwan-at-work/mod/cmd/mod
+
+    $ mod upgrade -t=3
+    // updates go.mod and all import paths to include v3
+
+    $ mod downgrade
+    // reverts go.mod and all import paths back to v2
+
+#### SLIDE #####
+################################################################################
+
+* This helps me...
+
+#### SLIDE #####
+################################################################################
+
+* What about the community? 
+
+- Remember this from 10 seconds ago?
+
+    module mycliapp/v2
+    
+    require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
+
+- It does use semantic version imports
+- No way to figure out correct versions of jwt-go.
+
+
+#### SLIDE #####
+################################################################################
+
+* What if the same tool can help migrate the community through your own module? 
+
+#### SLIDE #####
+################################################################################
+
+* So I wrote a new subcommand
+
+    $ mod migrate-community -token=<github-token>
+
+- Parses go.mod file 
+- Looks for +incompatible imports
+- Migrates them to Go Modules on your behalf.
+
+
+#### SLIDE #####
+################################################################################
+
+* Let's take a look
+
+
+#### SLIDE #####
+################################################################################
+
+* Go is experiencing rapid changes 
+
+- Let's help make those transitions easier for all of us.
+

@@ -1,0 +1,169 @@
+#+theme=black
+
+#### SLIDE #####
+################################################################################
+
+Experimenting On an Experimentation Of an Experiment
+
+27 August 2018
+
+Marwan Sulaiman (github.com/marwan-at-work)
+The New York Times
+
+#### SLIDE #####
+################################################################################
+
+* 14 minutes ago, Aaron talked about:
+
+- 1. Project Athens
+- 2. The Download Protocol
+
+#### SLIDE #####
+################################################################################
+
+* The Download Protocol Contract
+
+- GET _baseURL/{module}/@v/list_ 
+
+- GET _baseURL/{module}/@v/{version}.info_ 
+
+- GET _baseURL/{module}/@v/{version}.mod_ 
+
+- GET _baseURL/{module}/@v/{version}.zip_ 
+
+- GET _baseURL/{module}/@latest_ 
+
+
+#### SLIDE #####
+################################################################################
+
+* Athens uses `go mod download` in the background. 
+
+- The correct decision.
+- But let's reinvent the wheel 
+- And make it cooler, but more unstable. 
+
+#### SLIDE #####
+################################################################################
+
+* Disclaimer: don't use in production, or ever.
+
+#### SLIDE #####
+################################################################################
+
+* Goals
+
+- 1. Use Import Paths to figure out Code Hosting Site (github, bitbucket etc)
+- 2. Use those sites' APIs directly to serve Go Modules.
+
+#### SLIDE #####
+################################################################################
+
+* Why on earth? 
+
+- 1. No Go and git dependencies 
+- 2. Faster
+- 3. Better error handling.
+
+#### SLIDE #####
+################################################################################
+
+* Why not use it ever? 
+
+- Check Sums
+- If the content is a tad bit different, Go will not compile.
+
+
+#### SLIDE #####
+################################################################################
+
+* Step One: define the interface
+
+    type DownloadProtocol interface {
+        // GET baseURL/{module}/@v/list
+        List(ctx context.Context, module string) ([]string, error)
+
+        // GET baseURL/{module}/@v/{version}.info 
+        Info(ctx context.Context, module, version string) (*RevInfo, error)
+
+        // GET baseURL/{module}/@v/{version}.mod 
+        GoMod(ctx context.Context, module, version string) ([]byte, error)
+
+        // GET baseURL/{module}/@v/{version}.zip 
+        Zip(ctx context.Context, module, version string) (io.Reader, error)
+
+        // GET baseURL/{module}/@latest 
+        Latest(ctx context.Context, module string) (*RevInfo, error)
+    }
+
+#### SLIDE #####
+################################################################################
+
+* Why?
+    dp := github.NewProtocol()
+    http.HandleFunc("/{module}/@v/list", func(w http.ResponseWriter, r *http.Request) {
+        mod := mux.Vars(r)["module"]
+        vers, err := dp.List(r.Context(), mod)
+        fmt.Fprint(w, strings.Join(vers, "\n"))
+    }
+
+
+#### SLIDE #####
+################################################################################
+* Step Two: start with GithubAPI 
+
+- List(ctx context.Context, module string) ([]string, error) corresponds to 
+- ListTags(ctx context.Context, owner string, repo string, opt *ListOptions) ([]*RepositoryTag, *Response, error)
+
+- Info(ctx context.Context, module, version string) (*RevInfo, error) corresponds to 
+- GetCommit(ctx context.Context, owner, repo, sha string) (*RepositoryCommit, *Response, error)
+
+#### SLIDE #####
+################################################################################
+* Step Two: start with GithubAPI 
+
+- Latest(ctx context.Context, module string) (*RevInfo, error) becomes: 
+
+	r, _, err := d.c.Repositories.Get(ctx, owner, repo)
+	handleErr(err)
+
+	ref := r.GetDefaultBranch()
+	c, _, err := d.c.Repositories.GetCommit(ctx, owner, repo, ref)
+    // continue...
+
+
+#### SLIDE #####
+################################################################################
+* Step Two: start with GithubAPI 
+
+- GoMod(ctx context.Context, module, version string) ([]byte, error) corresponds to 
+- GetContents(ctx context.Context, owner, repo, path string, opt *RepositoryContentGetOptions) (fileContent *RepositoryContent, directoryContent []*RepositoryContent, resp *Response, err error)
+
+#### SLIDE #####
+################################################################################
+* Step Two: start with GithubAPI 
+
+- Zip(ctx context.Context, module, version string) (io.Reader, error) will do 
+
+	url, _, err := d.c.Repositories.GetArchiveLink(
+		ctx,
+		owner,
+		repo,
+		github.Zipball, // note this line.
+		&github.RepositoryContentGetOptions{Ref: ref},
+	)
+
+    resp, err := http.Get(url)
+
+    return resp.Body, nil
+
+#### SLIDE #####
+################################################################################
+* Let's try it out 
+
+    package main
+    import _ "github.com/pkg/errors"
+    func main() {}
+
+- $ GOPROXY=http://localhost:8090 go build
+
