@@ -59,10 +59,10 @@ The New York Times
 
 * A demonstration: 
 
-    # mycliapp/main.go
+    # example/main.go
     package main
 
-    import "mycliapp/cmd"
+    import "example/cmd"
 
     func main() {
         cmd.Run(os.Args)
@@ -74,10 +74,8 @@ The New York Times
 
 * A demonstration: 
 
-    # mycliapp/cmd/cmd.go
+    # example/cmd/cmd.go
     package cmd
-
-    import "github.com/dgrijalva/jwt-go"
 
     func Run(args []string) {
         ...
@@ -88,35 +86,47 @@ The New York Times
 
 * A demonstration:
 
-    # mycliapp/go.mod 
-    module mycliapp
-    
-    require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
+    # example/go.mod 
+    module example
+
 
 #### SLIDE #####
 ################################################################################
 
-* A breaking change:
+* Let's introduce a breaking change:
 
-    # mycliapp/go.mod 
-    module mycliapp/v2
+#### SLIDE #####
+################################################################################
 
-    require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
-    -------------------
-    # mycliapp/main.go
-    package main
+* Update go.mod file:
 
-    import "mycliapp/v2/cmd"
+    # example/go.mod 
+    module example/v2
 
-    func main() {
-        cmd.Run(os.Args, []string{"default", "vars"})
-    }
-    ---------------------
-    # mycliapp/cmd/cmd.go
+#### SLIDE #####
+################################################################################
+
+* Do the breaking change:
+
+    # example/cmd/cmd.go
     package cmd
 
     func Run(args []string, defaults []string) {
         ...
+    }
+
+#### SLIDE #####
+################################################################################
+
+* Update the main function:
+
+    # example/main.go
+    package main
+
+    import "example/v2/cmd"
+
+    func main() {
+        cmd.Run(os.Args, []string{"default", "vars"})
     }
 
 #### SLIDE #####
@@ -152,9 +162,16 @@ The New York Times
 
 * What about the community? 
 
-- Remember this from 10 seconds ago?
 
-    module mycliapp/v2
+#### SLIDE #####
+################################################################################
+
+* Introduce a dependency
+
+    $ go get github.com/dgrijalva/jwt-go
+    
+    cat go.mod
+    module example/v2
     
     require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
 
@@ -188,7 +205,7 @@ The New York Times
 #### SLIDE #####
 ################################################################################
 
-* Go is experiencing rapid changes 
+* Go is experiencing important changes 
 
-- Let's help make those transitions easier for all of us.
+- Let's help make the transition easier for all of us
 
