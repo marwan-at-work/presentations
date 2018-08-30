@@ -158,7 +158,7 @@ The New York Times
     
     require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
 
-- It does use semantic version imports
+- It does not use semantic version imports
 - No way to figure out correct versions of jwt-go.
 
 
@@ -172,7 +172,7 @@ The New York Times
 
 * So I wrote a new subcommand
 
-    $ mod migrate-community -token=<github-token>
+    $ mod migrate-deps -token=<github-token>
 
 - Parses go.mod file 
 - Looks for +incompatible imports
