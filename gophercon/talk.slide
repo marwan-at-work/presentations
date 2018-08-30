@@ -170,7 +170,7 @@ The New York Times
 
     $ go get github.com/dgrijalva/jwt-go
     
-    cat go.mod
+    $ cat go.mod
     module example/v2
     
     require github.com/dgrijalva/jwt-go => v3.2.0+incompatible
